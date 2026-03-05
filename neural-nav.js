@@ -11,29 +11,29 @@
     ],
     // Layer 1
     [
-      { id: 'about', label: 'About' },
-      { id: 'education', label: 'Education' },
-      { id: 'experience', label: 'Experience' },
+      { id: 'about',      label: 'About',      url: 'about.html' },
+      { id: 'education',  label: 'Education',  url: 'education.html' },
+      { id: 'experience', label: 'Experience', url: 'experience.html' },
     ],
     // Layer 2
     [
-      { id: 'projects', label: 'Projects' },
-      { id: 'competitions', label: 'Competitions' },
-      { id: 'publications', label: 'Publications' },
-      { id: 'honors', label: 'Honors' },
+      { id: 'projects',     label: 'Projects',     url: 'projects.html' },
+      { id: 'competitions', label: 'Competitions', url: 'competitions.html' },
+      { id: 'publications', label: 'Publications', url: 'publications.html' },
+      { id: 'honors',       label: 'Honors',       url: 'honors.html' },
     ],
     // Layer 3
     [
-      { id: 'certifications', label: 'Certifications' },
-      { id: 'skills', label: 'Skills' },
-      { id: 'mytech', label: 'My Tech' },
-      { id: 'contact', label: 'Contact' },
+      { id: 'certifications', label: 'Certifications', url: 'certifications.html' },
+      { id: 'skills',         label: 'Skills',         url: 'skills.html' },
+      { id: 'mytech',         label: 'My Tech',        url: 'mytech.html' },
+      { id: 'contact',        label: 'Contact',        url: 'contact.html' },
     ],
     // Layer 4 — output nodes
     [
-      { id: null, label: 'Engineer', isDeco: true },
+      { id: null, label: 'Engineer',   isDeco: true },
       { id: null, label: 'Researcher', isDeco: true },
-      { id: null, label: 'Tinkerer', isDeco: true },
+      { id: null, label: 'Tinkerer',   isDeco: true },
     ],
   ];
 
@@ -117,20 +117,15 @@
 
   function seedParticles() {
     particles = [];
-    // ensure every connection has at least one particle
-    connections.forEach(c => {
-      particles.push(makeParticle(c));
-      if (Math.random() < 0.35) particles.push(makeParticle(c));
+    // exactly one particle per connection, staggered so they don't move in sync
+    connections.forEach((c, i) => {
+      particles.push({
+        conn: c,
+        t: i / connections.length,  // evenly stagger start positions
+        speed: 0.0025 + Math.random() * 0.0015,
+        size: 1.4 + Math.random() * 1.2,
+      });
     });
-  }
-
-  function makeParticle(conn) {
-    return {
-      conn,
-      t: Math.random(),
-      speed: 0.002 + Math.random() * 0.004,
-      size: 1.2 + Math.random() * 1.4,
-    };
   }
 
   /* ---------- draw ---------- */
@@ -237,30 +232,10 @@
   /* ---------- animation loop ---------- */
 
   function tick() {
-    // advance particles — each one travels its own connection
     particles.forEach(p => {
       p.t += p.speed;
-      if (p.t > 1) {
-        // when a particle reaches the end of a connection,
-        // respawn it on a random connection from the destination node's layer outward
-        const nextLayer = p.conn.to.layer;
-        const outgoing = connections.filter(c => c.from === p.conn.to);
-        if (outgoing.length > 0) {
-          const next = outgoing[Math.floor(Math.random() * outgoing.length)];
-          p.conn = next;
-          p.t = 0;
-          p.speed = 0.002 + Math.random() * 0.004;
-          p.size = 1.2 + Math.random() * 1.4;
-        } else {
-          // reached final layer, restart from a random input connection
-          const starts = connections.filter(c => c.from.layer === 0);
-          if (starts.length) {
-            p.conn = starts[Math.floor(Math.random() * starts.length)];
-            p.t = 0;
-            p.speed = 0.002 + Math.random() * 0.004;
-            p.size = 1.2 + Math.random() * 1.4;
-          }
-        }
+      if (p.t >= 1) {
+        p.t = 0; // restart on the same edge
       }
     });
 
@@ -290,8 +265,8 @@
   canvas.addEventListener('click', e => {
     const r = canvas.getBoundingClientRect();
     const node = nodeAt(e.clientX - r.left, e.clientY - r.top);
-    if (node && node.id) {
-      document.getElementById(node.id).scrollIntoView({ behavior: 'smooth' });
+    if (node && node.url) {
+      window.location.href = node.url;
     }
   });
 
@@ -305,9 +280,9 @@
     const touch = e.touches[0];
     const r = canvas.getBoundingClientRect();
     const node = nodeAt(touch.clientX - r.left, touch.clientY - r.top);
-    if (node && node.id) {
+    if (node && node.url) {
       e.preventDefault();
-      document.getElementById(node.id).scrollIntoView({ behavior: 'smooth' });
+      window.location.href = node.url;
     }
   }, { passive: false });
 
