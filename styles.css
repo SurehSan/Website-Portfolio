@@ -1,3 +1,13 @@
+/* Global link color */
+a {
+    color: #7a1e2e;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: #a02840;
+}
+
 /* Reset and base styles */
 * {
     margin: 0;
@@ -262,15 +272,16 @@ main {
 }
 
 #contact a {
-    color: var(--primary);
+    color: #7a1e2e;
     text-decoration: none;
     font-weight: 500;
     border-bottom: 1px solid transparent;
-    transition: border-color 0.2s ease;
+    transition: border-color 0.2s ease, color 0.2s ease;
 }
 
 #contact a:hover {
-    border-bottom-color: var(--primary);
+    color: #a02840;
+    border-bottom-color: #7a1e2e;
 }
 
 /* Responsive video embed */
