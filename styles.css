@@ -362,6 +362,11 @@ body.landing header {
 }
 
 /* Back button on sub-pages */
+.back-btn-wrapper {
+    text-align: center;
+    padding: 24px 0 8px;
+}
+
 .back-btn {
     display: inline-flex;
     align-items: center;
@@ -370,10 +375,9 @@ body.landing header {
     text-decoration: none;
     font-size: 0.82rem;
     letter-spacing: 0.5px;
-    padding: 8px 0;
+    padding: 8px 16px;
     border-bottom: 1px solid transparent;
     transition: color 0.2s, border-color 0.2s;
-    margin-bottom: 4px;
 }
 
 .back-btn:hover {
