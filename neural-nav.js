@@ -45,6 +45,100 @@
   const NODE_RADIUS = 5;
   const HIT_RADIUS = 24;
 
+  /* ---------- binary glitch state ---------- */
+  // Each clickable node gets a glitch tracker:
+  //   glitchedCount — how many chars from the start have been converted
+  //   chars[]       — current display characters
+  //   original      — original label text
+  //   timer         — ms accumulator for staggering
+  const glitchMap = new Map();   // keyed by node id
+  const GLITCH_INTERVAL = 40;    // ms between each character flip
+  const UNGLITCH_INTERVAL = 30;  // ms between each character restore
+  const GLITCH_DURATION = 1500;  // total ms before auto-reverting
+
+  function getGlitch(node) {
+    if (!glitchMap.has(node.id)) {
+      glitchMap.set(node.id, {
+        original: node.label,
+        chars: node.label.split(''),
+        glitchedCount: 0,
+        timer: 0,
+        active: false,        // true while hovering
+        jitterTimer: 0,       // for randomising already-glitched chars
+        elapsed: 0,           // total time since hover started
+        reversing: false,     // true when auto-reverting
+      });
+    }
+    return glitchMap.get(node.id);
+  }
+
+  function randomBit() { return Math.random() < 0.5 ? '1' : '0'; }
+
+  function updateGlitches(dt) {
+    glitchMap.forEach(g => {
+      if (g.active) {
+        g.elapsed += dt;
+
+        if (!g.reversing && g.elapsed >= GLITCH_DURATION) {
+          // time's up — start reversing while still hovered
+          g.reversing = true;
+          g.timer = 0;
+        }
+
+        if (g.reversing) {
+          // auto-revert one char at a time (end to start)
+          g.timer += dt;
+          while (g.timer >= UNGLITCH_INTERVAL && g.glitchedCount > 0) {
+            g.timer -= UNGLITCH_INTERVAL;
+            g.glitchedCount--;
+            g.chars[g.glitchedCount] = g.original[g.glitchedCount];
+          }
+          // jitter remaining glitched chars
+          g.jitterTimer += dt;
+          if (g.jitterTimer >= 60) {
+            g.jitterTimer = 0;
+            for (let i = 0; i < g.glitchedCount; i++) {
+              if (g.original[i] !== ' ') g.chars[i] = randomBit();
+            }
+          }
+        } else {
+          // glitch IN — convert one more char each interval
+          g.timer += dt;
+          while (g.timer >= GLITCH_INTERVAL && g.glitchedCount < g.original.length) {
+            g.timer -= GLITCH_INTERVAL;
+            const i = g.glitchedCount;
+            g.chars[i] = g.original[i] === ' ' ? ' ' : randomBit();
+            g.glitchedCount++;
+          }
+          // jitter already-glitched characters for a lively feel
+          g.jitterTimer += dt;
+          if (g.jitterTimer >= 60) {
+            g.jitterTimer = 0;
+            for (let i = 0; i < g.glitchedCount; i++) {
+              if (g.original[i] !== ' ') g.chars[i] = randomBit();
+            }
+          }
+        }
+      } else if (g.glitchedCount > 0) {
+        // mouse left — glitch OUT
+        g.timer += dt;
+        while (g.timer >= UNGLITCH_INTERVAL && g.glitchedCount > 0) {
+          g.timer -= UNGLITCH_INTERVAL;
+          g.glitchedCount--;
+          g.chars[g.glitchedCount] = g.original[g.glitchedCount];
+        }
+        // jitter remaining glitched chars
+        g.jitterTimer += dt;
+        if (g.jitterTimer >= 60) {
+          g.jitterTimer = 0;
+          for (let i = 0; i < g.glitchedCount; i++) {
+            if (g.original[i] !== ' ') g.chars[i] = randomBit();
+          }
+        }
+      }
+    });
+  }
+
   /* ---------- layout ---------- */
 
   function resize() {
@@ -214,24 +308,70 @@
 
       // label
       if (node.label) {
+        const labelY = node.y + r + 8;
         if (isEndpoint) {
           ctx.font      = '600 11.5px "Segoe UI",sans-serif';
           ctx.fillStyle = 'rgba(' + c.r + ',' + c.g + ',' + c.b + ',' + (0.55 + 0.25 * pulse) + ')';
+          ctx.textAlign    = 'center';
+          ctx.textBaseline = 'top';
+          ctx.fillText(node.label, node.x, labelY);
         } else {
-          ctx.font      = hov ? '600 12px "Segoe UI",sans-serif'
-                               : '400 11px "Segoe UI",sans-serif';
-          ctx.fillStyle = hov ? '#fff' : 'rgba(255,255,255,0.5)';
+          // binary glitch rendering
+          const g = getGlitch(node);
+          const displayText = g.chars.join('');
+
+          ctx.textAlign    = 'center';
+          ctx.textBaseline = 'top';
+
+          if (g.glitchedCount > 0) {
+            // draw character-by-character for color split
+            const fontSize = hov ? 12 : 11;
+            const fontWeight = hov ? '600' : '400';
+            ctx.font = fontWeight + ' ' + fontSize + 'px "JetBrains Mono","Segoe UI",monospace';
+
+            // measure full string to center it
+            const totalW = ctx.measureText(displayText).width;
+            let cx = node.x - totalW / 2;
+            ctx.textAlign = 'left';
+
+            for (let ci = 0; ci < g.chars.length; ci++) {
+              const ch = g.chars[ci];
+              const isGlitched = ci < g.glitchedCount;
+              if (isGlitched && ch !== ' ') {
+                // glitched char — darker shade matching node color gradient
+                const layerT = node.layer / (sections.length - 1);
+                const nc = lerpColor(layerT);
+                const dr = Math.round(nc.r * 0.55);
+                const dg = Math.round(nc.g * 0.55);
+                const db = Math.round(nc.b * 0.55);
+                const flicker = 0.7 + 0.3 * Math.sin(time * 12 + ci * 3);
+                ctx.fillStyle = 'rgba(' + dr + ',' + dg + ',' + db + ',' + flicker + ')';
+              } else {
+                ctx.fillStyle = hov ? '#fff' : 'rgba(255,255,255,0.5)';
+              }
+              ctx.fillText(ch, cx, labelY);
+              cx += ctx.measureText(ch).width;
+            }
+          } else {
+            // normal rendering (no glitch active)
+            ctx.font      = hov ? '600 12px "Segoe UI",sans-serif'
+                                 : '400 11px "Segoe UI",sans-serif';
+            ctx.fillStyle = hov ? '#fff' : 'rgba(255,255,255,0.5)';
+            ctx.fillText(node.label, node.x, labelY);
+          }
         }
-        ctx.textAlign    = 'center';
-        ctx.textBaseline = 'top';
-        ctx.fillText(node.label, node.x, node.y + r + 8);
       }
     });
   }
 
   /* ---------- animation loop ---------- */
 
-  function tick() {
+  let lastFrameTime = performance.now();
+
+  function tick(now) {
+    const dt = now - lastFrameTime;
+    lastFrameTime = now;
+
     particles.forEach(p => {
       p.t += p.speed;
       if (p.t >= 1) {
@@ -239,6 +379,7 @@
       }
     });
 
+    updateGlitches(dt);
     draw();
     requestAnimationFrame(tick);
   }
@@ -248,8 +389,14 @@
   function nodeAt(mx, my) {
     return allNodes.find(n => {
       if (n.isDeco) return false;
+      // hit test: circle around node + rectangular region around the label below
       const dx = n.x - mx, dy = n.y - my;
-      return Math.sqrt(dx * dx + dy * dy) < HIT_RADIUS;
+      const inCircle = Math.sqrt(dx * dx + dy * dy) < HIT_RADIUS;
+      // label sits about 13px below node center, ~12px tall, width varies
+      const labelW = n.label ? n.label.length * 7 : 0;
+      const inLabel = Math.abs(mx - n.x) < labelW / 2 + 6
+                   && my > n.y + 4 && my < n.y + 32;
+      return inCircle || inLabel;
     });
   }
 
@@ -257,8 +404,22 @@
     const r = canvas.getBoundingClientRect();
     const node = nodeAt(e.clientX - r.left, e.clientY - r.top);
     if (node !== hoveredNode) {
+      // deactivate glitch on previous node
+      if (hoveredNode && hoveredNode.id) {
+        const prev = getGlitch(hoveredNode);
+        prev.active = false;
+        prev.timer = 0;
+      }
       hoveredNode = node;
       canvas.style.cursor = node ? 'pointer' : 'default';
+      // activate glitch on new node
+      if (node && node.id) {
+        const g = getGlitch(node);
+        g.active = true;
+        g.timer = 0;
+        g.elapsed = 0;
+        g.reversing = false;
+      }
     }
   });
 
@@ -271,6 +432,11 @@
   });
 
   canvas.addEventListener('mouseleave', () => {
+    if (hoveredNode && hoveredNode.id) {
+      const prev = getGlitch(hoveredNode);
+      prev.active = false;
+      prev.timer = 0;
+    }
     hoveredNode = null;
     canvas.style.cursor = 'default';
   });
@@ -290,5 +456,5 @@
 
   window.addEventListener('resize', resize);
   resize();
-  tick();
+  requestAnimationFrame(tick);
 })();
