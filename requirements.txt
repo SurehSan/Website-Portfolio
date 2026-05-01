@@ -1,1 +1,7 @@
--r LTC/requirements.txt
+streamlit==1.35.0
+pandas==2.2.2
+numpy==1.26.4
+plotly==5.22.0
+matplotlib==3.9.0
+duckdb==0.10.3
+sqlalchemy==2.0.30
