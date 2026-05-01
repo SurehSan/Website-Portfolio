@@ -1,0 +1,31 @@
+facility_id,facility_name,state,total_beds,occupancy_pct,avg_length_of_stay_days,overall_rating,staffing_rating,quality_rating,care_type
+GS001,Good Samaritan - Sioux Falls,SD,128,87.4,412,4,4,4,skilled_nursing
+GS002,Good Samaritan - Fargo,ND,142,84.1,398,3,3,4,skilled_nursing
+GS003,Good Samaritan - Albert Lea,MN,98,91.2,287,5,5,4,assisted_living
+GS004,Good Samaritan - Lakota,ND,68,79.8,521,3,3,3,skilled_nursing
+GS005,Good Samaritan - Indianola,IA,112,82.5,365,4,3,4,assisted_living
+GS006,Good Samaritan - Kissimmee,FL,156,88.7,256,4,4,5,independent_living
+GS007,Good Samaritan - Loveland,CO,134,86.3,410,4,4,4,skilled_nursing
+GS008,Good Samaritan - Hastings,NE,88,75.4,298,2,2,3,memory_care
+GS009,Good Samaritan - Pipestone,MN,72,93.1,445,5,5,5,skilled_nursing
+GS010,Good Samaritan - Estherville,IA,84,81.6,372,3,3,3,assisted_living
+GS011,Good Samaritan - Watertown,SD,118,89.3,388,4,4,4,skilled_nursing
+GS012,Good Samaritan - Bismarck,ND,162,85.7,420,4,4,4,skilled_nursing
+GS013,Good Samaritan - Brainerd,MN,96,77.2,335,3,2,3,assisted_living
+GS014,Good Samaritan - Council Bluffs,IA,108,90.5,267,5,5,4,independent_living
+GS015,Good Samaritan - Casper,WY,124,83.8,402,4,3,4,skilled_nursing
+GS016,Good Samaritan - Las Cruces,NM,142,86.9,318,4,4,4,memory_care
+GS017,Good Samaritan - Cheyenne,WY,86,72.3,289,2,2,2,assisted_living
+GS018,Good Samaritan - Rapid City,SD,138,88.1,395,4,4,5,skilled_nursing
+GS019,Good Samaritan - Mitchell,SD,76,94.8,512,5,5,5,skilled_nursing
+GS020,Good Samaritan - Norfolk,NE,102,80.4,348,3,3,3,assisted_living
+GS021,Good Samaritan - Forest City,IA,68,76.5,322,3,2,3,memory_care
+GS022,Good Samaritan - Fergus Falls,MN,114,85.2,378,4,4,4,skilled_nursing
+GS023,Good Samaritan - Yankton,SD,92,88.9,406,4,4,5,skilled_nursing
+GS024,Good Samaritan - Worthington,MN,128,82.7,391,3,3,4,skilled_nursing
+GS025,Good Samaritan - Aberdeen,SD,108,89.4,422,4,5,4,skilled_nursing
+GS026,Good Samaritan - Marshall,MN,82,84.6,358,4,3,4,assisted_living
+GS027,Good Samaritan - Spencer,IA,96,78.3,341,3,3,3,assisted_living
+GS028,Good Samaritan - Red Wing,MN,118,87.5,385,4,4,4,skilled_nursing
+GS029,Good Samaritan - Pierre,SD,72,73.8,302,2,2,3,memory_care
+GS030,Good Samaritan - Albuquerque,NM,148,86.2,328,4,4,4,assisted_living

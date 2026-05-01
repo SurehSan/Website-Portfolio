@@ -1,0 +1,22 @@
+Notes	Age Group	Age Group Code	Deaths	Population	Crude Rate
+	65-69	65-69	195342	17820000	1096.2
+	70-74	70-74	248712	14210000	1750.3
+	75-79	75-79	298540	10405000	2869.1
+	80-84	80-84	352891	6712000	5258.2
+	85+	85+	612488	6315000	9698.9
+"---"
+"Dataset: Underlying Cause of Death, 2018-2022"
+"Query Date: 2026-01-15"
+"Source: Centers for Disease Control and Prevention, National Center for Health Statistics."
+"URL: https://wonder.cdc.gov/ucd-icd10.html"
+"Note: Age-band crude mortality rates per 100,000."
+"Caveat: Counts derived from the National Vital Statistics System."
+"Data are based on death certificates for U.S. residents."
+"Population counts are from the U.S. Census Bureau."
+"Crude Rate = (Deaths / Population) * 100,000"
+"For actuarial use, divide Crude Rate by 100,000 to get qx-style annual probability."
+"Caveat: Synthetic representative dataset for demonstration; replace with live WONDER export when refreshing."
+"Methodology: ICD-10 codes A00-Y89 included as underlying cause."
+"Reporting period: 5 calendar years aggregated."
+"Confidentiality: Counts < 10 suppressed in production exports."
+"Generated for: LTC Cost & Mortality Risk Dashboard project."
